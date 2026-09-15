@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>amr_bringup</name>
+  <version>1.0.0</version>
+  <description>AMR bringup package for real hardware - launch files and configurations</description>
+  <maintainer email="thienvu@example.com">Thien Vu</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>amr_description</depend>
+  <depend>amr_hardware</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>robot_localization</depend>
+  <depend>sllidar_ros2</depend>
+  <depend>slam_toolbox</depend>
+  <depend>nav2_bringup</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

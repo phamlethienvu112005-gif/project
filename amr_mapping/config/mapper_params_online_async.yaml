@@ -1,7 +1,7 @@
 slam_toolbox:
   ros__parameters:
     # Kích hoạt thời gian mô phỏng
-    use_sim_time: true 
+    use_sim_time: false 
     
     # Plugin tối ưu hóa Graph SLAM
     solver_plugin: solver_plugins::CeresSolver
@@ -16,7 +16,7 @@ slam_toolbox:
     map_frame: map
     base_frame: base_footprint
     scan_topic: /scan
-    odom_topic: /odometry/filtered
+    odom_topic: /odom
     mode: mapping
 
     # Cấu hình chuẩn QoS cho Gazebo Lidar

@@ -1,0 +1,57 @@
+# =============================================================================
+# AMR USB Device Rules - Symlink Management
+# Created: 2026-09-14
+# Purpose: Create /dev/esp32 and /dev/rplidar symlinks
+#
+# Device Info (from udevadm):
+#   ttyUSB0: KERNELS=="1-1", devnum=7  -> ESP32
+#   ttyUSB1: KERNELS=="1-2", devnum=9  -> RPLiDAR
+#
+# Both use CP210x (VID:PID = 10c4:ea60)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# RPLiDAR - Match by USB bus path (1-2) or devnum (9)
+# -----------------------------------------------------------------------------
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb-serial", \
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", \
+    KERNELS=="1-2", \
+    SYMLINK+="rplidar", MODE="0666", GROUP="dialout"
+
+# Alternative: Match by devnum if bus path changes
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb-serial", \
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", \
+    ATTRS{devnum}=="9", \
+    SYMLINK+="rplidar", MODE="0666", GROUP="dialout"
+
+# -----------------------------------------------------------------------------
+# ESP32 - Match by USB bus path (1-1) or devnum (7)
+# Fallback: If RPLiDAR already matched (ttyUSB1), create esp32 for any remaining CP210x
+# -----------------------------------------------------------------------------
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb-serial", \
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", \
+    KERNELS=="1-1", \
+    SYMLINK+="esp32", MODE="0666", GROUP="dialout"
+
+# Alternative: Match by devnum if bus path changes
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb-serial", \
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", \
+    ATTRS{devnum}=="7", \
+    SYMLINK+="esp32", MODE="0666", GROUP="dialout"
+
+# -----------------------------------------------------------------------------
+# Fallback: Generic CP210x device
+# Use link_priority to ensure esp32 gets ttyUSB0 if RPLiDAR fails to match
+# -----------------------------------------------------------------------------
+# ESP32 fallback: Lower link_priority number wins when multiple symlinks target same device
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb-serial", \
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", \
+    SYMLINK+="esp32", MODE="0666", GROUP="dialout", \
+    OPTIONS="link_priority=100"
+
+# =============================================================================
+# Test commands:
+#   ls -la /dev/esp32 /dev/rplidar
+#   udevadm test $(udevadm info -q path -n /dev/ttyUSB0)
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+# =============================================================================

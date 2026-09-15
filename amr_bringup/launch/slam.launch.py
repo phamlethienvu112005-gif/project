@@ -1,0 +1,48 @@
+"""SLAM Launch - Online async SLAM toolbox for 2D mapping.
+
+Subscribes to:
+  - /scan (LiDAR scan)
+  - /tf (odom -> base_footprint from EKF)
+
+Publishes:
+  - /map (occupancy grid)
+  - /map_metadata
+  - /slam_toolbox/scan_visualization
+  - TF: map -> odom
+
+TF Tree after launch:
+  map -> odom (SLAM)
+  odom -> base_footprint (EKF)
+  base_footprint -> base_link -> ...
+
+Usage:
+  ros2 launch amr_bringup slam.launch.py
+"""
+
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    pkg_mapping = get_package_share_directory('amr_mapping')
+    config_file = os.path.join(pkg_mapping, 'config', 'mapper_params_online_async.yaml')
+
+    slam_node = Node(
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen',
+        parameters=[{
+            'use_sim_time': False,
+            'params_file': config_file,
+        }],
+        remappings=[
+            ('/scan', '/scan'),
+        ]
+    )
+
+    return LaunchDescription([
+        slam_node,
+    ])
